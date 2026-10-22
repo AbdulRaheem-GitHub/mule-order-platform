@@ -1,0 +1,4 @@
+http:
+ path: "/orders"
+ port: "8081"
+ basePath: "/api/v1"

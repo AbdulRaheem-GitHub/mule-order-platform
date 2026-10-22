@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="fa2b96cd-cae4-4c6b-88f0-3c2025af248f" basePath="${http.basePath}">
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<flow name="orders-liteFlow" doc:id="1c24f280-fd45-4774-a6b6-c2f7bebe8681" >
+		<http:listener doc:name="Listener" doc:id="7db6357f-61dd-499f-ac28-7e7f0e6ca409" config-ref="HTTP_Listener_config" path="${http.path}" allowedMethods="POST" outputMimeType="application/json">
+			<http:response statusCode='#[vars.httpStatus default 200]'>
+			</http:response>
+		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="77a54ea4-3b62-4545-bb57-a1678acc01ab" message="#[payload]"/>
+		<set-variable value='#["201"]' doc:name="Set Variable" doc:id="413fdf96-0d82-4cee-932c-f632fc17202e" variableName="httpStatus"/>
+		<ee:transform doc:name="Transform Message" doc:id="2aea4986-59c7-4b4c-9aa7-cd729ed0f686" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	orderId : uuid(),
+	status : "CREATED",
+	items : payload.items default []
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="orders-liteFlow1" doc:id="19c826a0-b3dd-4030-bf68-bf2227260735" >
+		<http:listener doc:name="Listener" doc:id="fd054e1c-eb0c-44da-a9b0-cbbe4280d0c3" config-ref="HTTP_Listener_config" path="${http.path}/{id}" allowedMethods="GET"/>
+		<choice doc:name="Choice" doc:id="598250c4-5028-4d54-8b89-b963a9354a43" >
+			<when expression='#[attributes.uriParams.id == "1001"]'>
+				<ee:transform doc:name="Transform Message" doc:id="92ebbd66-bd42-4654-9ab3-6053759f3818" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	orderId: "1001", 
+	customer: "Abdul", 
+	status: "SHIPPED"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<set-variable value='#["404"]' doc:name="Set Variable" doc:id="387a4c32-ddca-4ad6-bc40-247550433505" variableName="httpStatus"/>
+				<ee:transform doc:name="Transform Message" doc:id="ac723e2b-6090-4f56-a2e1-808dafce71d1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: "Order not found"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

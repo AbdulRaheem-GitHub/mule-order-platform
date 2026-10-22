@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6364d749-338b-4fe5-9abe-04a0ddb79948" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<flow name="hello-world-trailFlow" doc:id="522825c5-4451-4fc8-b583-151ef4a317e5" >
+		<http:listener doc:name="Listener" doc:id="6170a356-1eaa-4cf1-9900-7ccf794770db" config-ref="HTTP_Listener_config" path="/hello"/>
+		<flow-ref doc:name="Flow Reference" doc:id="01047373-da98-456e-9fe5-e42628604afc" name="logRequestFlow"/>
+		<set-variable value="${app.greeting}" doc:name="Set Variable" doc:id="6c87440b-9771-4b07-985d-4c40cbfd5086" variableName="greet"/>
+		<set-payload value='#[vars.greet ++ " " ++ (attributes.queryParams.name default "Guest")]' doc:name="Set Payload" doc:id="993f2ff3-4018-4f8f-a059-deecd06b7478" />
+		<flow-ref doc:name="Flow Reference" doc:id="17d201fc-66b3-4931-9fdd-64d8560516a9" name="formatGreetingSubFlow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0ca0ceb2-6bcd-4c51-a7dc-5316695fd26d" message="#[payload]"/>
+	</flow>
+	<flow name="hello-world-trailFlow1" doc:id="b2340e7f-5b0f-4c73-b28d-a930ced94f21" >
+		<http:listener doc:name="Listener" doc:id="9ac19461-1e51-4553-bf00-71a0f9f7560e" config-ref="HTTP_Listener_config" path="/hello2"/>
+		<flow-ref doc:name="Flow Reference" doc:id="ec31e16b-5ab6-4096-8a3a-c365be58ee50" name="logRequestFlow"/>
+	</flow>
+	<sub-flow name="formatGreetingSubFlow" doc:id="22faf818-b49d-4c1c-900c-39be2d4f1a48" >
+		<set-payload value="#[upper(payload)]" doc:name="Set Payload" doc:id="f7371ea2-63c1-4b45-ae9e-eea449c8d4ad" />
+	</sub-flow>
+	<flow name="logRequestFlow" doc:id="42874e85-8f8f-484d-90ca-111f82759d12" >
+		<logger level="INFO" doc:name="Logger" doc:id="b9773bdd-2a72-4362-ab98-7cfb8b545c16" message='#["Request received for: " ++ (attributes.queryParams.name default "Guest")]'/>
+	</flow>
+</mule>

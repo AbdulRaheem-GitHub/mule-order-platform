@@ -1,0 +1,6 @@
+target/
+.mule/
+.project
+.classpath
+.settings/
+*.jar
