@@ -5,5 +5,5 @@
 * Fixed: use attributes.queryParams to read query values
 * Rule: ${key} for plain fields, p('key') inside fx
 * Revisit: subflow vs private flow
-* Completed the orders lite project
+* Completed the orders lite project.
 
