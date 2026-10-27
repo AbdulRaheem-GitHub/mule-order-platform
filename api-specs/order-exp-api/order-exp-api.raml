@@ -1,0 +1,90 @@
+#%RAML 1.0
+title: Order Experience API
+version: v1
+baseUri: http://localhost:8081/api/{version}
+mediaType: application/json
+
+types:
+  Error:
+    properties:
+      message: string
+  OrderItem:
+    properties:
+      sku: string
+      quantity:
+        type: integer
+        minimum: 1
+  Order:
+    properties:
+      orderId?: string
+      customerId: string
+      status?:
+        enum: [CREATED, SHIPPED, CANCELLED]
+      items: OrderItem[]
+
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+        required: true
+      client_secret:
+        type: string
+        required: true
+  secured-errors:
+    responses:
+      401:
+        body:
+          application/json:
+            type: Error
+            example: !include examples/unauthorized.json
+      500:
+        body:
+          application/json:
+            type: Error
+            example: !include examples/server-error.json
+
+/orders:
+  get:
+    is: [ client-id-required, secured-errors ]
+    queryParameters:
+      status:
+        required: false
+        enum: [CREATED, SHIPPED, CANCELLED]
+    responses:
+      200:
+        body:
+          application/json:
+            type: Order[]
+            example: !include examples/order-list.json
+  post:
+    is: [ client-id-required, secured-errors ]
+    body:
+      application/json:
+        type: Order
+        example: !include examples/order-request.json
+    responses:
+      201:
+        body:
+          application/json:
+            type: Order
+            example: !include examples/order.json
+      400:
+        body:
+          application/json:
+            type: Error
+            example: !include examples/bad-request.json
+  /{orderId}:
+    get:
+      is: [ client-id-required, secured-errors ]
+      responses:
+        200:
+          body:
+            application/json:
+              type: Order
+              example: !include examples/order.json
+        404:
+          body:
+            application/json:
+              type: Error
+              example: !include examples/notfound.json

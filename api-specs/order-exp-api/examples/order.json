@@ -1,0 +1,6 @@
+{
+  "orderId": "ORD-1",
+  "customerId": "C1",
+  "status": "CREATED",
+  "items": [ { "sku": "PEN", "quantity": 2 } ]
+}

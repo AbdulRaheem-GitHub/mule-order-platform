@@ -1,0 +1,4 @@
+[
+  { "orderId": "ORD-1", "customerId": "C1", "status": "CREATED", "items": [ { "sku": "PEN", "quantity": 2 } ] },
+  { "orderId": "ORD-2", "customerId": "C2", "status": "SHIPPED", "items": [ { "sku": "BOOK", "quantity": 1 } ] }
+]
